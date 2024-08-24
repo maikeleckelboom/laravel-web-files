@@ -38,18 +38,18 @@ return [
             'throw' => false,
         ],
 
-        'uploaded_files' => [
+        'uploads' => [
             'driver' => 'local',
-            'root' => storage_path('app/uploaded_files'),
-            'url' => env('APP_URL') . '/storage/uploaded_files',
+            'root' => storage_path('app/uploads'),
+            'url' => env('APP_URL') . '/storage/uploads',
             'visibility' => 'private',
             'throw' => false,
         ],
 
         'chunks' => [
             'driver' => 'local',
-            'root' => storage_path('app/chunks'),
-            'url' => env('APP_URL') . '/storage/chunks',
+            'root' => storage_path('app/uploads/chunks'),
+            'url' => env('APP_URL') . '/storage/uploads/chunks',
             'visibility' => 'private',
             'throw' => false,
         ],

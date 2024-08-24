@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use App\Data\UploadData;
-use App\Exceptions\ChunkStorageFailed;
 use App\Exceptions\ChunkCountMismatch;
+use App\Exceptions\ChunkStorageFailed;
 use App\Models\Upload;
 use App\Models\User;
-use Exception;
+use App\UploadStatus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
@@ -28,19 +28,24 @@ class UploadService
             ->uploads()
             ->firstOrCreate([
                 'identifier' => $data->identifier,
+                'status' => $data->status,
                 'file_name' => $data->fileName,
-                'file_type' => $data->fileType,
-                'file_size' => $data->fileSize,
-                'chunk_size' => $data->chunkSize,
-                'status' => $data->status
+                'mime_type' => $data->fileType,
+                'size' => $data->fileSize,
+                'chunk_size' => $data->chunkSize
             ])
             ->refresh();
 
         $this->addChunk($upload, $data->chunkData);
 
         if ($upload->hasReceivedAllChunks()) {
+
             $file = $this->assembleChunks($upload);
+
             $user->addMedia($file)->toMediaCollection('media');
+
+            $upload->status = UploadStatus::COMPLETED;
+            $upload->save();
         }
 
         return $upload;
@@ -74,8 +79,8 @@ class UploadService
     public function assembleChunks(Upload $upload): string
     {
         $disk = Storage::disk($upload->disk);
-
         $chunksDisk = Storage::disk($upload->chunks_disk);
+
         $chunks = $chunksDisk->files($upload->identifier);
 
         if (count($chunks) !== $upload->total_chunks) {

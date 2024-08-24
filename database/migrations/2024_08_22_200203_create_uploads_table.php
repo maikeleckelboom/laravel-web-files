@@ -16,13 +16,13 @@ return new class extends Migration {
             $table->id();
             $table->string('identifier')->unique();
             $table->string('file_name');
-            $table->string('file_type');
-            $table->unsignedBigInteger('file_size');
+            $table->string('mime_type');
+            $table->string('disk')->default('uploads');
+            $table->string('chunks_disk')->default('chunks');
+            $table->unsignedBigInteger('size');
             $table->unsignedBigInteger('chunk_size');
             $table->unsignedInteger('received_chunks')->default(0);
             $table->enum('status', UploadStatus::toArray())->default(UploadStatus::INITIATED);
-            $table->string('disk')->default('uploaded_files');
-            $table->string('chunks_disk')->default('chunks');
             $table->foreignIdFor(User::class);
             $table->timestamps();
         });

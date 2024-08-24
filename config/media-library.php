@@ -12,7 +12,7 @@ return [
      * The maximum file size of an item in bytes.
      * Adding a larger file will result in an exception.
      */
-    'max_file_size' => 1024 * 1024 * 10, // 10MB
+    'max_file_size' => 1024 * 1024 * 4000, // 4GB
 
     /*
      * This queue connection will be used to generate derived and responsive images.
@@ -49,24 +49,24 @@ return [
      */
     'use_default_collection_serialization' => false,
 
-    /*
-     * The fully qualified class name of the model used for temporary uploads.
-     *
-     * This model is only used in Media Library Pro (https://medialibrary.pro)
-     */
-    'temporary_upload_model' => Spatie\MediaLibraryPro\Models\TemporaryUpload::class,
-
-    /*
-     * When enabled, Media Library Pro will only process temporary uploads that were uploaded
-     * in the same session. You can opt to disable this for stateless usage of
-     * the pro components.
-     */
-    'enable_temporary_uploads_session_affinity' => true,
-
-    /*
-     * When enabled, Media Library pro will generate thumbnails for uploaded file.
-     */
-    'generate_thumbnails_for_temporary_uploads' => true,
+//    /*
+//     * The fully qualified class name of the model used for temporary uploads.
+//     *
+//     * This model is only used in Media Library Pro (https://medialibrary.pro)
+//     */
+//    'temporary_upload_model' => Spatie\MediaLibraryPro\Models\TemporaryUpload::class,
+//
+//    /*
+//     * When enabled, Media Library Pro will only process temporary uploads that were uploaded
+//     * in the same session. You can opt to disable this for stateless usage of
+//     * the pro components.
+//     */
+//    'enable_temporary_uploads_session_affinity' => true,
+//
+//    /*
+//     * When enabled, Media Library pro will generate thumbnails for uploaded file.
+//     */
+//    'generate_thumbnails_for_temporary_uploads' => true,
 
     /*
      * This is the class that is responsible for naming generated files.

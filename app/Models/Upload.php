@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Exception;
+use App\UploadStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class Upload extends Model
@@ -13,19 +12,21 @@ class Upload extends Model
 
     protected $guarded = [];
 
-    protected $appends = [
-        'received_bytes',
-        'total_chunks',
-        'extension',
-        'progress',
+    protected $casts = [
+        'size' => 'int',
+        'chunk_size' => 'int',
     ];
 
-    protected $casts = [
-        'file_size' => 'int',
-        'chunk_size' => 'int',
-        'received_chunks' => 'int',
-        'received_bytes' => 'int',
-    ];
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::deleted(function (Upload $upload) {
+            if (count(Storage::disk($upload->disk)->allFiles()) === 0) {
+                Storage::disk($upload->disk)->deleteDirectory('');
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {
@@ -39,12 +40,12 @@ class Upload extends Model
 
     public function getReceivedBytesAttribute(): int
     {
-        return min($this->file_size, $this->received_chunks * $this->chunk_size);
+        return min($this->size, $this->received_chunks * $this->chunk_size);
     }
 
     public function getTotalChunksAttribute(): int
     {
-        return ceil($this->file_size / $this->chunk_size);
+        return ceil($this->size / $this->chunk_size);
     }
 
     public function getExtensionAttribute(): string
@@ -59,8 +60,11 @@ class Upload extends Model
 
     public function isCompleted(): bool
     {
-        return $this->status === 'completed';
+        return $this->status === UploadStatus::COMPLETED;
     }
 
-
+    public function setCompleted(): void
+    {
+        $this->status = UploadStatus::COMPLETED;
+    }
 }
