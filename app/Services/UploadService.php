@@ -7,7 +7,6 @@ use App\Exceptions\ChunkCountMismatch;
 use App\Exceptions\ChunkStorageFailed;
 use App\Models\Upload;
 use App\Models\User;
-use App\UploadStatus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
@@ -44,11 +43,10 @@ class UploadService
 
             $user->addMedia($file)->toMediaCollection('media');
 
-            $upload->status = UploadStatus::COMPLETED;
-            $upload->save();
+            $upload->setCompleted();
         }
 
-        return $upload;
+        return $upload->refresh();
     }
 
     /**

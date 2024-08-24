@@ -22,7 +22,7 @@ class Upload extends Model
         parent::boot();
 
         static::deleted(function (Upload $upload) {
-            if (count(Storage::disk($upload->disk)->allFiles()) === 0) {
+            if (Storage::disk($upload->disk)->allFiles() === []) {
                 Storage::disk($upload->disk)->deleteDirectory('');
             }
         });
@@ -60,11 +60,13 @@ class Upload extends Model
 
     public function isCompleted(): bool
     {
-        return $this->status === UploadStatus::COMPLETED;
+        return $this->status === 'completed';
     }
 
     public function setCompleted(): void
     {
-        $this->status = UploadStatus::COMPLETED;
+        $this->query()
+            ->where('id', $this->id)
+            ->update(['status' => UploadStatus::COMPLETED]);
     }
 }

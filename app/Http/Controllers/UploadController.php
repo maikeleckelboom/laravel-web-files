@@ -36,9 +36,8 @@ class UploadController extends Controller
         $upload = $this->uploadService->store($user, $data);
 
         if ($upload->isCompleted()) {
-
-            $file = Storage::disk($upload->disk)->get("{$upload->identifier}/{$upload->file_name}");
-            logger($file);
+//            $file = Storage::disk($upload->disk)->get($upload->file_name);
+//            $user->addMedia($file)->toMediaCollection('media');
 
             $upload->delete();
 
