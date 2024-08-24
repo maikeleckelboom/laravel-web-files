@@ -33,25 +33,25 @@ return [
         'media' => [
             'driver' => 'local',
             'root' => storage_path('app/media'),
-            'throw' => false,
             'url' => env('APP_URL') . '/storage/media',
             'visibility' => 'private',
+            'throw' => false,
         ],
 
-        'uploads' => [
+        'uploaded_files' => [
             'driver' => 'local',
-            'root' => storage_path('app/uploads'),
-            'throw' => false,
-            'url' => env('APP_URL') . '/storage/uploads',
+            'root' => storage_path('app/uploaded_files'),
+            'url' => env('APP_URL') . '/storage/uploaded_files',
             'visibility' => 'private',
+            'throw' => false,
         ],
 
         'chunks' => [
             'driver' => 'local',
             'root' => storage_path('app/chunks'),
-            'throw' => false,
             'url' => env('APP_URL') . '/storage/chunks',
             'visibility' => 'private',
+            'throw' => false,
         ],
 
         'local' => [

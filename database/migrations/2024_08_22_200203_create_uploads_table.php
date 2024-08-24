@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('chunk_size');
             $table->unsignedInteger('received_chunks')->default(0);
             $table->enum('status', UploadStatus::toArray())->default(UploadStatus::INITIATED);
-            $table->string('disk')->default('local');
+            $table->string('disk')->default('uploaded_files');
             $table->string('chunks_disk')->default('chunks');
             $table->foreignIdFor(User::class);
             $table->timestamps();

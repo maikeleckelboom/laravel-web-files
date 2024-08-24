@@ -5,9 +5,9 @@ namespace App\Services;
 use App\Data\UploadData;
 use App\Models\Upload;
 use App\Models\User;
-use App\UploadStatus;
 use Exception;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class UploadService
 {
@@ -55,8 +55,28 @@ class UploadService
         );
     }
 
-    public function removeChunks(Upload $upload): bool
+    public function assembleChunks(Upload $upload): string|false
     {
-        return true;
+        $disk = Storage::disk($upload->disk);
+
+        $chunksDisk = Storage::disk($upload->chunks_disk);
+        $chunks = $chunksDisk->files($upload->identifier);
+
+        if (count($chunks) !== $upload->total_chunks) {
+            return false;
+        }
+
+        while ($chunk = array_shift($chunks)) {
+            $disk->append($upload->file_name, $chunksDisk->get($chunk));
+            $chunksDisk->delete($chunk);
+        }
+
+        $chunksDisk->deleteDirectory($upload->identifier);
+
+        return $disk->path($upload->file_name);
+    }
+
+    public function moveChunkToDisk(Upload $upload, string $chunkPath): void
+    {
     }
 }
