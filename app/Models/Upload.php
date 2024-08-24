@@ -52,9 +52,14 @@ class Upload extends Model
         return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
-    public function isFinished(): bool
+    public function hasReceivedAllChunks(): bool
     {
         return $this->received_chunks === $this->total_chunks;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === 'completed';
     }
 
 

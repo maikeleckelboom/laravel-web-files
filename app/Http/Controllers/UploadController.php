@@ -27,14 +27,9 @@ class UploadController extends Controller
 
         $fileUpload = $this->uploadService->store($request->user(), $data);
 
-        if ($fileUpload->isFinished()) {
+        if ($fileUpload->isCompleted()) {
 
-            $file = $this->uploadService->assembleChunks($fileUpload);
 
-            $request->user()->uploads()->where('id', $fileUpload->id)->delete();
-
-            // add to media-library
-            $request->user()->addMedia($file)->toMediaCollection('media');
         }
 
         return response()->json($fileUpload, 202);

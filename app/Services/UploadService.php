@@ -3,16 +3,24 @@
 namespace App\Services;
 
 use App\Data\UploadData;
+use App\Exceptions\ChunkStorageFailed;
+use App\Exceptions\ChunkCountMismatch;
 use App\Models\Upload;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
 class UploadService
 {
+
     /**
-     * @throws Exception
+     * @throws FileIsTooBig
+     * @throws FileDoesNotExist
+     * @throws ChunkCountMismatch
+     * @throws ChunkStorageFailed
      */
     public function store(User $user, UploadData $data)
     {
@@ -30,23 +38,28 @@ class UploadService
 
         $this->addChunk($upload, $data->chunkData);
 
+        if ($upload->hasReceivedAllChunks()) {
+            $file = $this->assembleChunks($upload);
+            $user->addMedia($file)->toMediaCollection('media');
+        }
+
         return $upload;
     }
 
     /**
-     * @throws Exception
+     * @throws ChunkStorageFailed
      */
     public function addChunk(Upload $upload, UploadedFile $uploadedFile): void
     {
         if (!$this->storeChunk($upload, $uploadedFile)) {
-            throw new Exception('Unable to store chunk.');
+            throw new ChunkStorageFailed();
         }
 
         $upload->increment('received_chunks');
         $upload->save();
     }
 
-    public function storeChunk(Upload $upload, UploadedFile $uploadedFile): bool
+    private function storeChunk(Upload $upload, UploadedFile $uploadedFile): bool
     {
         return $uploadedFile->storeAs(
             $upload->identifier,
@@ -55,7 +68,10 @@ class UploadService
         );
     }
 
-    public function assembleChunks(Upload $upload): string|false
+    /**
+     * @throws ChunkCountMismatch
+     */
+    public function assembleChunks(Upload $upload): string
     {
         $disk = Storage::disk($upload->disk);
 
@@ -63,7 +79,7 @@ class UploadService
         $chunks = $chunksDisk->files($upload->identifier);
 
         if (count($chunks) !== $upload->total_chunks) {
-            return false;
+            throw new ChunkCountMismatch();
         }
 
         while ($chunk = array_shift($chunks)) {
@@ -74,9 +90,5 @@ class UploadService
         $chunksDisk->deleteDirectory($upload->identifier);
 
         return $disk->path($upload->file_name);
-    }
-
-    public function moveChunkToDisk(Upload $upload, string $chunkPath): void
-    {
     }
 }
