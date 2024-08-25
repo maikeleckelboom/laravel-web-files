@@ -30,7 +30,7 @@ class UploadService
                 'size' => $data->size,
                 'chunk_size' => $data->chunkSize,
                 'received_chunks' => $data->chunkNumber - 1,
-                'status' => $data->status,
+                'status' => UploadStatus::PENDING
             ])
             ->refresh();
 
@@ -38,8 +38,10 @@ class UploadService
 
         if ($this->hasReceivedAllChunks($upload)) {
 
+            $path = $this->assembleChunks($upload);
+
             $upload->update([
-                'path' => $this->assembleChunks($upload),
+                'path' => $path,
                 'status' => UploadStatus::COMPLETED
             ]);
 
@@ -48,7 +50,6 @@ class UploadService
 
         return $upload;
     }
-
 
     public function addChunk(Upload $upload, UploadedFile $uploadedFile): void
     {
@@ -81,14 +82,20 @@ class UploadService
             throw new ChunkCountMismatch();
         }
 
-        while ($chunk = array_shift($chunks)) {
-            $disk->append($upload->file_name, $chunksDisk->get($chunk));
+        $destinationPath = $disk->path($upload->file_name);
+        $destinationStream = fopen($destinationPath, 'a');
+
+        foreach ($chunks as $chunk) {
+            $chunkStream = $chunksDisk->readStream($chunk);
+            stream_copy_to_stream($chunkStream, $destinationStream);
+            fclose($chunkStream);
             $chunksDisk->delete($chunk);
         }
 
+        fclose($destinationStream);
         $chunksDisk->deleteDirectory($upload->identifier);
 
-        return $disk->path($upload->file_name);
+        return $destinationPath;
     }
 
     private function hasReceivedAllChunks(Upload $upload): bool

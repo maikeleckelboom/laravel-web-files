@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('size');
             $table->unsignedBigInteger('chunk_size');
             $table->unsignedInteger('received_chunks')->default(0);
-            $table->enum('status', UploadStatus::toArray())->default(UploadStatus::INITIATED);
+            $table->enum('status', UploadStatus::toArray())->default(UploadStatus::QUEUED);
             $table->foreignIdFor(User::class);
             $table->timestamps();
         });

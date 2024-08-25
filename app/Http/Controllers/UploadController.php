@@ -4,11 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Data\UploadData;
 use App\Exceptions\ChunkCountMismatch;
-use App\Exceptions\ChunkStorageFailed;
 use App\Services\UploadService;
 use Illuminate\Http\Request;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
 class UploadController extends Controller
 {
@@ -22,9 +19,6 @@ class UploadController extends Controller
     }
 
     /**
-     * @throws FileDoesNotExist
-     * @throws FileIsTooBig
-     * @throws ChunkStorageFailed
      * @throws ChunkCountMismatch
      */
     public function store(Request $request)
@@ -35,14 +29,13 @@ class UploadController extends Controller
         $upload = $this->uploadService->store($user, $data);
 
         if ($upload->isCompleted()) {
-
             $media = $user->addMedia($upload->path)->toMediaCollection('media');
 
             $upload->delete();
 
-            return response()->json([...$upload->toArray(), 'media' => $media]);
+            return collect($upload)->merge(['media' => $media]);
         }
 
-        return response()->json($upload->toArray());
+        return $upload;
     }
 }
