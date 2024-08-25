@@ -29,11 +29,12 @@ class UploadController extends Controller
         $upload = $this->uploadService->store($user, $data);
 
         if ($upload->isCompleted()) {
+
             $media = $user->addMedia($upload->path)->toMediaCollection('media');
 
             $upload->delete();
 
-            return collect($upload)->merge(['media' => $media]);
+            $upload = collect($upload)->merge(['media' => $media])->toArray();
         }
 
         return $upload;
