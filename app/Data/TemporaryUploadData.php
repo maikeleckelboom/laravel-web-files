@@ -2,24 +2,27 @@
 
 namespace App\Data;
 
-use App\UploadStatus;
 use Illuminate\Http\UploadedFile;
+use Spatie\LaravelData\Attributes\Validation\GreaterThan;
+use Spatie\LaravelData\Attributes\Validation\GreaterThanOrEqualTo;
 use Spatie\LaravelData\Attributes\Validation\LessThanOrEqualTo;
 use Spatie\LaravelData\Data;
 
-class UploadData extends Data
+class TemporaryUploadData extends Data
 {
     public function __construct(
         public string       $identifier,
         public string       $fileName,
         public string       $mimeType,
+        #[GreaterThan(0)]
         public int          $size,
+        #[GreaterThan(0)]
         public int          $totalChunks,
-        #[LessThanOrEqualTo('totalChunks')]
+        #[GreaterThan(0), LessThanOrEqualTo('totalChunks')]
         public int          $chunkNumber,
+        #[GreaterThanOrEqualTo(1024 * 1024)]
         public int          $chunkSize,
         public UploadedFile $chunkData,
-        public UploadStatus $status = UploadStatus::PENDING,
     )
     {
     }

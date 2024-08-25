@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Data\UploadData;
+use App\Data\TemporaryUploadData;
+use App\Enum\UploadStatus;
 use App\Exceptions\ChunkCountMismatch;
-use App\Models\Upload;
+use App\Models\TemporaryUpload;
 use App\Models\User;
-use App\UploadStatus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,10 +16,10 @@ class UploadService
     /**
      * @throws ChunkCountMismatch
      */
-    public function store(User $user, UploadData $data): Upload
+    public function store(User $user, TemporaryUploadData $data): TemporaryUpload
     {
         $upload = $user
-            ->uploads()
+            ->temporaryUploads()
             ->firstOrCreate([
                 'identifier' => $data->identifier,
                 'file_name' => $data->fileName,
@@ -35,10 +35,8 @@ class UploadService
 
         if ($this->hasReceivedAllChunks($upload)) {
 
-            $path = $this->assembleChunks($upload);
-
             $upload->update([
-                'path' => $path,
+                'path' => $this->assembleChunks($upload),
                 'status' => UploadStatus::COMPLETED
             ]);
 
@@ -48,7 +46,7 @@ class UploadService
         return $upload;
     }
 
-    public function addChunk(Upload $upload, UploadedFile $uploadedFile): void
+    private function addChunk(TemporaryUpload $upload, UploadedFile $uploadedFile): void
     {
         if ($this->storeChunk($upload, $uploadedFile)) {
             $upload->increment('received_chunks');
@@ -56,7 +54,7 @@ class UploadService
         }
     }
 
-    private function storeChunk(Upload $upload, UploadedFile $uploadedFile): bool
+    private function storeChunk(TemporaryUpload $upload, UploadedFile $uploadedFile): bool
     {
         return $uploadedFile->storeAs(
             $upload->identifier,
@@ -68,7 +66,7 @@ class UploadService
     /**
      * @throws ChunkCountMismatch
      */
-    public function assembleChunks(Upload $upload): string
+    private function assembleChunks(TemporaryUpload $upload): string
     {
         $disk = Storage::disk($upload->disk);
         $chunksDisk = Storage::disk($upload->chunks_disk);
@@ -95,7 +93,7 @@ class UploadService
         return $destinationPath;
     }
 
-    public function hasReceivedAllChunks(Upload $upload): bool
+    private function hasReceivedAllChunks(TemporaryUpload $upload): bool
     {
         return $upload->received_chunks === $upload->total_chunks;
     }

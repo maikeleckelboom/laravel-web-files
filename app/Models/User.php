@@ -50,8 +50,8 @@ class User extends Authenticatable implements HasMedia
         ];
     }
 
-    public function uploads(): HasMany
+    public function temporaryUploads(): HasMany
     {
-        return $this->hasMany(Upload::class);
+        return $this->hasMany(TemporaryUpload::class);
     }
 }
