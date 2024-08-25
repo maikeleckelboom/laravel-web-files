@@ -28,6 +28,7 @@ class UploadController extends Controller
 
         $uploadCollection = UploadResource::collection($uploads);
 
+
         return response()->json($uploadCollection);
 
     }

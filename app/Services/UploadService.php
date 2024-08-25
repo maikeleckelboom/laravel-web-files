@@ -20,14 +20,13 @@ class UploadService
     {
         $upload = $user
             ->uploads()
-            ->firstOrCreate([
-                'identifier' => $data->identifier,
+            ->firstOrCreate(['identifier' => $data->identifier], [
                 'file_name' => $data->fileName,
                 'mime_type' => $data->mimeType,
                 'size' => $data->size,
                 'chunk_size' => $data->chunkSize,
                 'received_chunks' => $data->chunkNumber - 1,
-                'status' => UploadStatus::PENDING
+                'status' => UploadStatus::PENDING,
             ])
             ->refresh();
 

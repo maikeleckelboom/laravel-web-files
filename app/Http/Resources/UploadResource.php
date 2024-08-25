@@ -16,6 +16,7 @@ class UploadResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'identifier' => $this->identifier,
             'fileName' => $this->file_name,
             'mimeType' => $this->mime_type,
@@ -26,23 +27,17 @@ class UploadResource extends JsonResource
             'receivedBytes' => $this->received_bytes,
             'progress' => $this->progress,
             'status' => $this->status,
-            'media' => $this->media ? $this->media->toArray() : null,
+            'media' => $this->media,
 
-            'duration' => $this->formatApproxDuration(),
-            'createdAt' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
-            'updatedAt' => Carbon::parse($this->updated_at)->format('d-m-Y H:i:s'),
+//            'duration' => $this->formatApproxDuration(),
+//            'createdAt' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
         ];
     }
 
     private function formatApproxDuration(): string
     {
-        $duration = Carbon::parse($this->created_at)->diffInMilliseconds($this->updated_at);
-
-        if ($duration < 1000) {
-            return "Less than a second";
-        }
-
-        return Carbon::parse($this->created_at)->longAbsoluteDiffForHumans($this->updated_at);
-
+//        $duration = Carbon::parse($this->created_at)->diffInMilliseconds($this->updated_at);
+//        if ($duration < 1000) return "Less than a second";
+//        return Carbon::parse($this->created_at)->longAbsoluteDiffForHumans($this->updated_at);
     }
 }

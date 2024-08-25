@@ -18,6 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/upload/{upload}/pause', [UploadController::class, 'pause']);
     Route::delete('/upload/{upload}', [UploadController::class, 'destroy']);
 
-    Route::get('/storage/{disk}/{id}', StorageController::class)
-        ->where('id', '.*');
+    Route::get('/storage/{disk}/{path}', StorageController::class)
+        ->where('path', '.*');
 });
