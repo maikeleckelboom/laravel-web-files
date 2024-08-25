@@ -14,9 +14,6 @@ class UploadService
 {
 
     /**
-     * @param User $user
-     * @param UploadData $data
-     * @return Upload
      * @throws ChunkCountMismatch
      */
     public function store(User $user, UploadData $data): Upload
@@ -98,7 +95,7 @@ class UploadService
         return $destinationPath;
     }
 
-    private function hasReceivedAllChunks(Upload $upload): bool
+    public function hasReceivedAllChunks(Upload $upload): bool
     {
         return $upload->received_chunks === $upload->total_chunks;
     }

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class Upload extends Model
 {
-
     protected $guarded = [];
 
     protected $casts = [
