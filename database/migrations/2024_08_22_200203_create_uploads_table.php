@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('identifier')->unique();
             $table->string('file_name');
             $table->string('mime_type');
+            $table->string('path')->nullable();
             $table->string('disk')->default('uploads');
             $table->string('chunks_disk')->default('chunks');
             $table->unsignedBigInteger('size');

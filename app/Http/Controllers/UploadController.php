@@ -7,7 +7,6 @@ use App\Exceptions\ChunkCountMismatch;
 use App\Exceptions\ChunkStorageFailed;
 use App\Services\UploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
@@ -36,14 +35,14 @@ class UploadController extends Controller
         $upload = $this->uploadService->store($user, $data);
 
         if ($upload->isCompleted()) {
-//            $file = Storage::disk($upload->disk)->get($upload->file_name);
-//            $user->addMedia($file)->toMediaCollection('media');
+
+            $media = $user->addMedia($upload->path)->toMediaCollection('media');
 
             $upload->delete();
 
-            return response()->json($upload, 201);
+            return response()->json([...$upload->toArray(), 'media' => $media]);
         }
 
-        return response()->json($upload);
+        return response()->json($upload->toArray());
     }
 }

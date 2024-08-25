@@ -2,7 +2,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -54,8 +57,9 @@
         ],
         "refresh": [
             "@php artisan down",
-            "@php artisan optimize:clear",
             "@php artisan migrate:fresh --seed --force --ansi",
+            "@php artisan media-library:clear",
+            "@php artisan optimize:clear",
             "@php artisan up"
         ],
         "start": [

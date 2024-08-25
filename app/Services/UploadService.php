@@ -4,62 +4,58 @@ namespace App\Services;
 
 use App\Data\UploadData;
 use App\Exceptions\ChunkCountMismatch;
-use App\Exceptions\ChunkStorageFailed;
 use App\Models\Upload;
 use App\Models\User;
+use App\UploadStatus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
 class UploadService
 {
 
     /**
-     * @throws FileIsTooBig
-     * @throws FileDoesNotExist
+     * @param User $user
+     * @param UploadData $data
+     * @return Upload
      * @throws ChunkCountMismatch
-     * @throws ChunkStorageFailed
      */
-    public function store(User $user, UploadData $data)
+    public function store(User $user, UploadData $data): Upload
     {
         $upload = $user
             ->uploads()
             ->firstOrCreate([
                 'identifier' => $data->identifier,
-                'status' => $data->status,
                 'file_name' => $data->fileName,
-                'mime_type' => $data->fileType,
-                'size' => $data->fileSize,
-                'chunk_size' => $data->chunkSize
+                'mime_type' => $data->mimeType,
+                'size' => $data->size,
+                'chunk_size' => $data->chunkSize,
+                'received_chunks' => $data->chunkNumber - 1,
+                'status' => $data->status,
             ])
             ->refresh();
 
         $this->addChunk($upload, $data->chunkData);
 
-        if ($upload->hasReceivedAllChunks()) {
+        if ($this->hasReceivedAllChunks($upload)) {
 
-            $file = $this->assembleChunks($upload);
+            $upload->update([
+                'path' => $this->assembleChunks($upload),
+                'status' => UploadStatus::COMPLETED
+            ]);
 
-            $user->addMedia($file)->toMediaCollection('media');
-
-            $upload->setCompleted();
+            $upload->refresh();
         }
 
-        return $upload->refresh();
+        return $upload;
     }
 
-    /**
-     * @throws ChunkStorageFailed
-     */
+
     public function addChunk(Upload $upload, UploadedFile $uploadedFile): void
     {
-        if (!$this->storeChunk($upload, $uploadedFile)) {
-            throw new ChunkStorageFailed();
+        if ($this->storeChunk($upload, $uploadedFile)) {
+            $upload->increment('received_chunks');
+            $upload->save();
         }
-
-        $upload->increment('received_chunks');
-        $upload->save();
     }
 
     private function storeChunk(Upload $upload, UploadedFile $uploadedFile): bool
@@ -93,5 +89,10 @@ class UploadService
         $chunksDisk->deleteDirectory($upload->identifier);
 
         return $disk->path($upload->file_name);
+    }
+
+    private function hasReceivedAllChunks(Upload $upload): bool
+    {
+        return $upload->received_chunks === $upload->total_chunks;
     }
 }

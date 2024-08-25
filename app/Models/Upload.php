@@ -17,13 +17,22 @@ class Upload extends Model
         'chunk_size' => 'int',
     ];
 
+    protected $appends = [
+        'extension',
+        'total_chunks',
+        'received_bytes',
+        'progress',
+    ];
+
     public static function boot(): void
     {
         parent::boot();
 
         static::deleted(function (Upload $upload) {
-            if (Storage::disk($upload->disk)->allFiles() === []) {
-                Storage::disk($upload->disk)->deleteDirectory('');
+            $disk = Storage::disk($upload->disk);
+
+            if ($disk->allFiles() === []) {
+                $disk->deleteDirectory('');
             }
         });
     }
@@ -53,20 +62,9 @@ class Upload extends Model
         return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
-    public function hasReceivedAllChunks(): bool
-    {
-        return $this->received_chunks === $this->total_chunks;
-    }
-
     public function isCompleted(): bool
     {
-        return $this->status === 'completed';
-    }
-
-    public function setCompleted(): void
-    {
-        $this->query()
-            ->where('id', $this->id)
-            ->update(['status' => UploadStatus::COMPLETED]);
+        return $this->status === UploadStatus::COMPLETED
+            || $this->received_chunks === $this->total_chunks;
     }
 }
