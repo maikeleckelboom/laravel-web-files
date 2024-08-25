@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\TemporaryUploadData;
+use App\Data\UploadData;
 use App\Enum\UploadStatus;
 use App\Exceptions\ChunkCountMismatch;
 use App\Http\Resources\UploadResource;
-use App\Models\TemporaryUpload;
+use App\Models\Upload;
 use App\Services\UploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,39 +24,43 @@ class UploadController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $uploads = $request->user()->temporaryUploads;
+        $uploads = $request->user()->uploads->sortByDesc('created_at')->values();
 
-        return response()->json(
-            UploadResource::collection($uploads)
-        );
+        $uploadCollection = UploadResource::collection($uploads);
+
+        return response()->json($uploadCollection);
+
     }
 
     /**
-     * @throws FileIsTooBig
+     * @return JsonResponse<UploadResource>
      * @throws FileDoesNotExist
      * @throws ChunkCountMismatch
-     * @return JsonResponse<UploadResource>
+     * @throws FileIsTooBig
      */
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
-        $data = TemporaryUploadData::validateAndCreate($request->all());
+        $data = UploadData::validateAndCreate($request->all());
 
         $upload = $this->uploadService->store($user, $data);
 
         if ($upload->isCompleted()) {
-
-            $media = $user->addMedia($upload->path)
+            $media = $user
+                ->addMedia($upload->path)
+                ->withResponsiveImages()
                 ->toMediaCollection('media');
 
-            $upload->update(['media_id' => $media->id]);
+            $upload->update([
+                'media_id' => $media->id
+            ]);
         }
 
         return response()->json(UploadResource::make($upload));
     }
 
 
-    public function pause(Request $request, TemporaryUpload $upload)
+    public function pause(Request $request, Upload $upload)
     {
         if ($request->user()->id !== $upload->user_id) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -67,7 +71,7 @@ class UploadController extends Controller
         return response()->json(['message' => 'Upload paused']);
     }
 
-    public function destroy(Request $request, TemporaryUpload $upload)
+    public function destroy(Request $request, Upload $upload)
     {
         if ($request->user()->id !== $upload->user_id) {
             return response()->json(['message' => 'Unauthorized'], 401);

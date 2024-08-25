@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Data\TemporaryUploadData;
+use App\Data\UploadData;
 use App\Enum\UploadStatus;
 use App\Exceptions\ChunkCountMismatch;
-use App\Models\TemporaryUpload;
+use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -16,10 +16,10 @@ class UploadService
     /**
      * @throws ChunkCountMismatch
      */
-    public function store(User $user, TemporaryUploadData $data): TemporaryUpload
+    public function store(User $user, UploadData $data): Upload
     {
         $upload = $user
-            ->temporaryUploads()
+            ->uploads()
             ->firstOrCreate([
                 'identifier' => $data->identifier,
                 'file_name' => $data->fileName,
@@ -46,7 +46,7 @@ class UploadService
         return $upload;
     }
 
-    private function addChunk(TemporaryUpload $upload, UploadedFile $uploadedFile): void
+    private function addChunk(Upload $upload, UploadedFile $uploadedFile): void
     {
         if ($this->storeChunk($upload, $uploadedFile)) {
             $upload->increment('received_chunks');
@@ -54,7 +54,7 @@ class UploadService
         }
     }
 
-    private function storeChunk(TemporaryUpload $upload, UploadedFile $uploadedFile): bool
+    private function storeChunk(Upload $upload, UploadedFile $uploadedFile): bool
     {
         return $uploadedFile->storeAs(
             $upload->identifier,
@@ -66,7 +66,7 @@ class UploadService
     /**
      * @throws ChunkCountMismatch
      */
-    private function assembleChunks(TemporaryUpload $upload): string
+    private function assembleChunks(Upload $upload): string
     {
         $disk = Storage::disk($upload->disk);
         $chunksDisk = Storage::disk($upload->chunks_disk);
@@ -93,7 +93,7 @@ class UploadService
         return $destinationPath;
     }
 
-    private function hasReceivedAllChunks(TemporaryUpload $upload): bool
+    private function hasReceivedAllChunks(Upload $upload): bool
     {
         return $upload->received_chunks === $upload->total_chunks;
     }

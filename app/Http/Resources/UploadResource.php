@@ -34,11 +34,11 @@ class UploadResource extends JsonResource
         ];
     }
 
-    private function formatApproxDuration()
+    private function formatApproxDuration(): string
     {
         $duration = Carbon::parse($this->created_at)->diffInMilliseconds($this->updated_at);
 
-        if($duration < 1000) {
+        if ($duration < 1000) {
             return "Less than a second";
         }
 

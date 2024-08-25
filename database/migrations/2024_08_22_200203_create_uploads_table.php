@@ -12,14 +12,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('temporary_uploads', function (Blueprint $table) {
+        Schema::create('uploads', function (Blueprint $table) {
             $table->id();
 
             $table->string('identifier')->unique();
             $table->string('file_name');
             $table->string('mime_type');
-            $table->string('disk')->default('temporary');
-            $table->string('chunks_disk')->default('temporary-chunks');
+            $table->string('disk')->default('temporary-media');
+            $table->string('chunks_disk')->default('temporary-media-chunks');
             $table->string('path')->nullable();
             $table->unsignedBigInteger('media_id')->nullable();
             $table->unsignedBigInteger('size');
@@ -37,6 +37,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('temporary_uploads');
+        Schema::dropIfExists('uploads');
     }
 };

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class ClearMediaCollection extends Command
 {
@@ -28,19 +29,56 @@ class ClearMediaCollection extends Command
     {
         $userId = $this->argument('user_id');
 
-        $userId
-            ? $this->clearUserMediaCollection(User::find($userId))
-            : $this->clearAllMediaCollections();
+        if ($userId) {
+            $user = User::find($userId);
+
+            if (!$user) {
+                $this->error("User with ID {$userId} not found.");
+
+                return;
+            }
+
+            $this->clearUserMediaDirectory($user);
+
+        } else {
+            $this->clearMediaDirectory();
+            $this->clearTemporaryMediaDirectory();
+        }
 
     }
 
-    private function clearAllMediaCollections(): void
+    private function clearMediaDirectory(): void
     {
-        User::all()->each(fn($user) => $this->clearUserMediaCollection($user));
+        $disk = config('media-library.disk_name');
+
+        $directories = Storage::disk($disk)->directories();
+
+        foreach ($directories as $directory) {
+            Storage::disk($disk)->deleteDirectory($directory);
+        }
+
     }
 
-    private function clearUserMediaCollection(User $user): void
+    private function clearTemporaryMediaDirectory(): void
     {
-        $user->media()->each(fn($media) => $media->delete());
+        $disk = Storage::disk('temporary-media');
+        $directories = $disk->directories();
+
+        foreach ($directories as $directory) {
+            $disk->deleteDirectory($directory);
+        }
+    }
+
+    private function clearUserMediaDirectory(User $user): void
+    {
+        $disk = config('media-library.disk_name');
+
+        $directories = Storage::disk($disk)->directories("{$user->id}");
+
+        foreach ($directories as $directory) {
+            Storage::disk($disk)->deleteDirectory($directory);
+        }
+
+        $this->info("Media storage for user {$user->id} cleared.");
     }
 }

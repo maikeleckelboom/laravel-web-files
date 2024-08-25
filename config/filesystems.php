@@ -38,18 +38,18 @@ return [
             'throw' => false,
         ],
 
-        'temporary' => [
+        'temporary-media' => [
             'driver' => 'local',
-            'root' => storage_path('app/temporary'),
-            'url' => env('APP_URL') . '/storage/temporary',
+            'root' => storage_path('app/temporary-media'),
+            'url' => env('APP_URL') . '/storage/temporary-media',
             'visibility' => 'private',
             'throw' => false,
         ],
 
-        'temporary-chunks' => [
+        'temporary-media-chunks' => [
             'driver' => 'local',
-            'root' => storage_path('app/temporary/chunks'),
-            'url' => env('APP_URL') . '/storage/temporary/chunks',
+            'root' => storage_path('app/temporary-media/chunks'),
+            'url' => env('APP_URL') . '/storage/temporary-media/chunks',
             'visibility' => 'private',
             'throw' => false,
         ],

@@ -58,13 +58,15 @@
         "refresh": [
             "@php artisan down",
             "@php artisan migrate:fresh --seed --force --ansi",
-            "@php artisan media-library:clear",
+            "@php artisan media:clear",
             "@php artisan optimize:clear",
             "@php artisan up"
         ],
-        "start": [
-            "@php artisan serve",
+        "work": [
             "@php artisan queue:work"
+        ],
+        "serve": [
+            "@php artisan serve"
         ]
     },
     "extra": {
