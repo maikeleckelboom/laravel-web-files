@@ -18,11 +18,11 @@ return new class extends Migration {
             $table->string('identifier')->unique();
             $table->string('file_name');
             $table->string('mime_type');
-            $table->string('disk')->default('temporary-media');
-            $table->string('chunks_disk')->default('temporary-media-chunks');
             $table->string('path')->nullable();
             $table->unsignedBigInteger('media_id')->nullable();
             $table->unsignedBigInteger('size');
+            $table->string('disk')->default('local-temporary');
+            $table->string('chunks_disk')->default('local-temporary');
             $table->unsignedBigInteger('chunk_size');
             $table->unsignedInteger('received_chunks')->default(0);
             $table->enum('status', UploadStatus::toArray())->default(UploadStatus::QUEUED);

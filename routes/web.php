@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,13 +12,15 @@ Route::get('/', function () {
 require __DIR__ . '/auth.php';
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', fn() => auth()->user())->name('user');
+    Route::get('/user', [UserController::class, 'currentUser'])->name('user');
+    Route::get('/user/media', [UserController::class, 'media'])->name('user.media');
+    Route::delete('/user/media/{media}', [UserController::class, 'destroyMedia'])->name('user.media.destroy');
 
-    Route::get('/upload', [UploadController::class, 'index']);
-    Route::post('/upload', [UploadController::class, 'store']);
-    Route::post('/upload/{upload}/pause', [UploadController::class, 'pause']);
-    Route::delete('/upload/{upload}', [UploadController::class, 'destroy']);
+    Route::get('/upload', [UploadController::class, 'index'])->name('upload');
+    Route::post('/upload', [UploadController::class, 'store'])->name('upload.store');
+    Route::delete('/upload/{upload}', [UploadController::class, 'destroy'])->name('upload.destroy');
 
     Route::get('/storage/{disk}/{path}', StorageController::class)
-        ->where('path', '.*');
+        ->where('path', '.*')
+        ->name('storage');
 });

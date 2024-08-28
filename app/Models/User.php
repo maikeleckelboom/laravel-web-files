@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -59,8 +58,9 @@ class User extends Authenticatable implements HasMedia
 
     public function registerMediaConversions(Media|null $media = null): void
     {
-        $this->addMediaConversion('preview')
-            ->fit(Fit::Contain, 200, 200)
+        $this->addMediaConversion('thumbnail')
+            ->fit(Fit::Contain, 100, 100)
+            ->extractVideoFrameAtSecond(1)
             ->nonQueued();
     }
 

@@ -28,7 +28,6 @@ class UploadController extends Controller
 
         $uploadCollection = UploadResource::collection($uploads);
 
-
         return response()->json($uploadCollection);
 
     }
@@ -47,33 +46,24 @@ class UploadController extends Controller
         $upload = $this->uploadService->store($user, $data);
 
         if ($upload->isCompleted()) {
+
             $media = $user
                 ->addMedia($upload->path)
                 ->withResponsiveImages()
                 ->toMediaCollection('media');
 
-            $upload->update([
-                'media_id' => $media->id
-            ]);
+            $upload->update(['media_id' => $media->id]);
         }
 
         return response()->json(UploadResource::make($upload));
     }
 
-
-    public function pause(Request $request, Upload $upload)
+    public function destroy(Request $request, int|string $idOrIdentifier)
     {
-        if ($request->user()->id !== $upload->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
+        $upload = Upload::where('identifier', $idOrIdentifier)
+            ->orWhere('id', $idOrIdentifier)
+            ->firstOrFail();
 
-        $upload->update(['status' => UploadStatus::PAUSED]);
-
-        return response()->json(['message' => 'Upload paused']);
-    }
-
-    public function destroy(Request $request, Upload $upload)
-    {
         if ($request->user()->id !== $upload->user_id) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }

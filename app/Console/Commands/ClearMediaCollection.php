@@ -61,7 +61,7 @@ class ClearMediaCollection extends Command
 
     private function clearTemporaryMediaDirectory(): void
     {
-        $disk = Storage::disk('temporary-media');
+        $disk = Storage::disk(config('media-library.temporary_disk_name'));
         $directories = $disk->directories();
 
         foreach ($directories as $directory) {

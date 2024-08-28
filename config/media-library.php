@@ -14,7 +14,7 @@ return [
      * The maximum file size of an item in bytes.
      * Adding a larger file will result in an exception.
      */
-    'max_file_size' => 1024 * 1024 * 4000, // 4GB
+    'max_file_size' => 1024 * 1024 * 16_000, // 16 GB
 
     /*
      * This queue connection will be used to generate derived and responsive images.
@@ -41,19 +41,20 @@ return [
     /*
      * The fully qualified class name of the media model.
      */
-    'media_model' => Spatie\MediaLibrary\MediaCollections\Models\Media::class,
+//    'media_model' => Spatie\MediaLibrary\MediaCollections\Models\Media::class,
+    'media_model' => App\Models\Media::class,
 
     /*
      * When enabled, Media Library Pro will only process temporary uploads that were uploaded
      * in the same session. You can opt to disable this for stateless usage of
      * the pro components.
      */
-    'enable_temporary_uploads_session_affinity' => true,
+    'enable_temporary_uploads_session_affinity' => false,
 
     /*
      * When enabled, Media Library pro will generate thumbnails for uploaded file.
      */
-    'generate_thumbnails_for_temporary_uploads' => true,
+    'generate_thumbnails_for_temporary_uploads' => false,
 
     /*
      * This is the class that is responsible for naming generated files.

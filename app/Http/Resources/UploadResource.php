@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Carbon;
 
 class UploadResource extends JsonResource
 {
@@ -23,21 +22,13 @@ class UploadResource extends JsonResource
             'extension' => $this->extension,
             'size' => $this->size,
             'totalChunks' => $this->total_chunks,
+
             'receivedChunks' => $this->received_chunks,
             'receivedBytes' => $this->received_bytes,
             'progress' => $this->progress,
             'status' => $this->status,
+
             'media' => $this->media,
-
-//            'duration' => $this->formatApproxDuration(),
-//            'createdAt' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
         ];
-    }
-
-    private function formatApproxDuration(): string
-    {
-//        $duration = Carbon::parse($this->created_at)->diffInMilliseconds($this->updated_at);
-//        if ($duration < 1000) return "Less than a second";
-//        return Carbon::parse($this->created_at)->longAbsoluteDiffForHumans($this->updated_at);
     }
 }
