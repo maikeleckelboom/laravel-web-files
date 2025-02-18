@@ -63,5 +63,4 @@ class User extends Authenticatable implements HasMedia
             ->extractVideoFrameAtSecond(1)
             ->nonQueued();
     }
-
 }
